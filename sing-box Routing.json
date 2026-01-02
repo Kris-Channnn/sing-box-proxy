@@ -29,29 +29,28 @@
   ],
   "dns": {
     "servers": [
-      {"tag": "local", "type": "local"},
+      {"tag": "local", "type": "udp", "server": "223.5.5.5"},
       {"tag": "public", "type": "https", "server": "dns.alidns.com", "domain_resolver": "local"},
       {"tag": "foreign", "type": "https", "server": "8.8.8.8", "detour": "🐝 Proxy"},
-      {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/16"}
+      {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15", "inet6_range": "fc00::/18"}
     ],
     "rules": [
       {"clash_mode": "direct", "server": "local"},
       {"clash_mode": "global", "server": "fakeip"},
       {"query_type": "HTTPS", "action": "reject"},
       {"rule_set": ["cn", "me", "apple", "bilibili", "games@cn"], "server": "local"},
-      {"query_type": "A", "server": "fakeip", "rewrite_ttl": 0}
+      {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}
     ],
     "final": "foreign",
+    "client_subnet": "223.5.5.0/24",
     "strategy": "prefer_ipv4",
     "reverse_mapping": true,
     "independent_cache": true,
-    "round_robin_cache": true,
-    "cache_capacity": 16000,
-    "lazy_cache_ttl": 180000
+    "round_robin_cache": true
   },
   "inbounds": [
     {"tag": "mixed-in", "type": "mixed", "listen": "0.0.0.0", "listen_port": 7890},
-    {"tag": "tun-in", "type": "tun", "address": ["168.18.0.1/30"], "mtu": 1500, "auto_route": true, "strict_route": true, "route_exclude_address": ["192.168.0.0/16", "fc00::/7"]}
+    {"tag": "tun-in", "type": "tun", "address": ["168.18.0.1/30", "fdfe:dcba:9876::1/126"], "mtu": 1500, "auto_route": true, "strict_route": true, "platform": {"http_proxy": {"enabled": true, "server":"127.0.0.1", "server_port": 7890}}, "route_exclude_address": ["192.168.0.0/16", "fc00::/7"]}
   ],
   "outbounds": [
     {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🐸 Direct"], "interrupt_exist_connections": true},
@@ -126,4 +125,5 @@
       {"tag": "cn-ip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/cn.srs", "download_detour": "🐸 Direct"}
     ]
   }
+
 }

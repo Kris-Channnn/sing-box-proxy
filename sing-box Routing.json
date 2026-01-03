@@ -29,17 +29,17 @@
   ],
   "dns": {
     "servers": [
-      {"tag": "local", "type": "udp", "server": "223.5.5.5"},
+      {"tag": "local", "type": "local"},
       {"tag": "public", "type": "https", "server": "dns.alidns.com", "domain_resolver": "local"},
       {"tag": "foreign", "type": "https", "server": "8.8.8.8", "detour": "🐝 Proxy"},
-      {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15", "inet6_range": "fc00::/18"}
+      {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/16"}
     ],
     "rules": [
       {"clash_mode": "direct", "server": "local"},
       {"clash_mode": "global", "server": "fakeip"},
       {"query_type": "HTTPS", "action": "reject"},
       {"rule_set": ["cn", "me", "apple", "bilibili", "games@cn"], "server": "local"},
-      {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}
+      {"query_type": "A", "server": "fakeip", "rewrite_ttl": 0}
     ],
     "final": "foreign",
     "client_subnet": "223.5.5.0/24",
@@ -50,7 +50,7 @@
   },
   "inbounds": [
     {"tag": "mixed-in", "type": "mixed", "listen": "0.0.0.0", "listen_port": 7890},
-    {"tag": "tun-in", "type": "tun", "address": ["168.18.0.1/30", "fdfe:dcba:9876::1/126"], "mtu": 1500, "auto_route": true, "strict_route": true, "platform": {"http_proxy": {"enabled": true, "server":"127.0.0.1", "server_port": 7890}}, "route_exclude_address": ["192.168.0.0/16", "fc00::/7"]}
+    {"tag": "tun-in", "type": "tun", "address": ["168.18.0.1/30", "fdfe:dcba:9876::1/126"], "mtu": 1500, "auto_route": true, "strict_route": true, "stack": "mixed", "platform": {"http_proxy": {"enabled": true, "server":"127.0.0.1", "server_port": 7890}}, "route_exclude_address": ["192.168.0.0/16", "fc00::/7"]}
   ],
   "outbounds": [
     {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🐸 Direct"], "interrupt_exist_connections": true},
@@ -127,3 +127,4 @@
   }
 
 }
+

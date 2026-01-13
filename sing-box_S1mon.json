@@ -35,7 +35,7 @@
     "servers": [
       {"tag":"proxy_server_dns","type":"https","server":"doh.pub","domain_resolver":"hosts"},
       {"tag":"direct_dns","type":"https","server":"dns.alidns.com","domain_resolver":"hosts"},
-      {"tag":"proxy_dns","type":"https","server":"cloudflare-dns.com","domain_resolver":"hosts","detour":"🐝 CATCH_ALL"},
+      {"tag":"proxy_dns","type":"https","server":"dns.google","domain_resolver":"hosts","detour":"🐝 CATCH_ALL"},
       {"tag":"local","type":"local"},
       {"tag":"fake-ip-dns-server","type":"fakeip","inet4_range":"198.18.0.0/15","inet6_range":"fc00::/64"},
       {"tag":"hosts","type":"hosts","predefined":{"dns.alidns.com":["223.5.5.5","223.6.6.6"],"doh.pub":["1.12.12.21","120.53.53.53"],
@@ -66,10 +66,11 @@
      "platform":{"http_proxy":{"enabled":true,"server":"127.0.0.1","server_port":7890}}}
   ],
   "outbounds": [
-    {"tag":"🐝 CATCH_ALL","type":"selector","outbounds":["🇭🇰 Hong Kong","🇹🇼 Taiwan","🇸🇬 Singapore","🇯🇵 Japan","🇺🇸 United States","🇺🇳 Other regions"],"interrupt_exist_connections": true},
+    {"tag":"🐝 CATCH_ALL","type":"selector","outbounds":["direct","🇭🇰 Hong Kong","🇹🇼 Taiwan","🇸🇬 Singapore","🇯🇵 Japan","🇺🇸 United States","🇺🇳 Other regions"],"interrupt_exist_connections": true},
     {"tag":"🤖 AI","type":"selector","outbounds":["🇭🇰 Hong Kong","🇹🇼 Taiwan","🇸🇬 Singapore","🇯🇵 Japan","🇺🇸 United States","🇺🇳 Other regions"],"interrupt_exist_connections": true},
-    {"tag":"🍎 Apple","type":"selector","outbounds":["🐝 CATCH_ALL","direct","🇭🇰 Hong Kong","🇹🇼 Taiwan","🇸🇬 Singapore","🇯🇵 Japan","🇺🇸 United States","🇺🇳 Other regions"],"interrupt_exist_connections": true},
+    {"tag":"🍎 Apple","type":"selector","outbounds":["direct","🇭🇰 Hong Kong","🇹🇼 Taiwan","🇸🇬 Singapore","🇯🇵 Japan","🇺🇸 United States","🇺🇳 Other regions"],"interrupt_exist_connections": true},
     {"tag":"📺 Bilibili","type":"selector","outbounds":["direct","🇭🇰 Hong Kong","🇹🇼 Taiwan"],"interrupt_exist_connections": true},
+    {"tag":"🖥️ Mircosoft","type":"selector","outbounds":["direct","🇭🇰 Hong Kong","🇹🇼 Taiwan","🇸🇬 Singapore","🇯🇵 Japan","🇺🇸 United States","🇺🇳 Other regions"],"interrupt_exist_connections": true},
     {"tag":"tg-tg","type":"selector","outbounds":["🇭🇰 Hong Kong","🇹🇼 Taiwan","🇸🇬 Singapore","🇯🇵 Japan","🇺🇸 United States","🇺🇳 Other regions"],"interrupt_exist_connections": true},
     {"tag":"tg-us","type":"selector","outbounds":["🇭🇰 Hong Kong","🇹🇼 Taiwan","🇸🇬 Singapore","🇯🇵 Japan","🇺🇸 United States","🇺🇳 Other regions"],"interrupt_exist_connections": true},
     {"tag":"tg-eu","type":"selector","outbounds":["🇭🇰 Hong Kong","🇹🇼 Taiwan","🇸🇬 Singapore","🇯🇵 Japan","🇺🇸 United States","🇺🇳 Other regions"],"interrupt_exist_connections": true},
@@ -85,11 +86,11 @@
   "route": {
     "final": "🐝 CATCH_ALL",
     "auto_detect_interface": true,
-    "default_domain_resolver": "direct_dns",
+    "default_domain_resolver": "proxy_server_dnss",
     "default_domain_match_strategy": "prefer_fqdn",
     "rules": [
       {"domain":["Mijia Cloud"],"domain_suffix":["push.apple.com"],"rule_set":["telegram_ip"],"invert":true,"action":"sniff"},
-      {"protocol":"dns","action":"hijack-dns"},
+      {"type":"logical","mode":"or","rules":[{"port": 53},{"protocol":"dns"}],"action":"hijack-dns"},
       {"clash_mode":"Global","outbound":"GLOBAL"},
       {"clash_mode":"Direct","outbound":"direct"},
       {"domain_suffix":["steamserver.net"],"outbound":"direct"},
@@ -105,7 +106,9 @@
       {"rule_set":"bahamut","outbound":"🇹🇼 Taiwan"},
       {"rule_set":"private","outbound":"direct"},
       {"rule_set":"ai","outbound":"🤖 AI"},
-      {"rule_set":["telegram","github","twitter","youtube","google","gfw"],"outbound":"🐝 CATCH_ALL"},
+      {"rule_set":["telegram","github","twitter","youtube","google"],"outbound":"🐝 CATCH_ALL"},
+      {"rule_set":"geosite-microsoft", "outbound":"🖥️ Mircosoft"},
+      {"rule_set":"gfw", "outbound":"🐝 CATCH_ALL"},
       {"rule_set":"cn","outbound":"direct"},
       {"action":"resolve","match_only":true},
       {"rule_set":"cn_ip","outbound":"direct"}
@@ -118,6 +121,7 @@
       {"tag":"telegram","type":"remote","format":"binary","url":"https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/telegram.srs","download_detour":"direct"},
       {"tag":"telegram_ip","type":"remote","format":"binary","url":"https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/telegram.srs","download_detour":"direct"},
       {"tag":"github","type":"remote","format":"binary","url":"https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/github.srs","download_detour":"direct"},
+      {"tag":"geosite-microsoft","type":"remote","format":"binary","url":"https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/microsoft.srs","download_detour":"direct"},
       {"tag":"twitter","type":"remote","format":"binary","url":"https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/twitter.srs","download_detour":"direct"},
       {"tag":"youtube","type":"remote","format":"binary","url":"https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/youtube.srs","download_detour":"direct"},
       {"tag":"google","type":"remote","format":"binary","url":"https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/google.srs","download_detour":"direct"},
@@ -128,4 +132,5 @@
       {"tag":"cn_ip","type":"remote","format":"binary","url":"https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/cn.srs","download_detour":"direct"}
     ]
   }
+
 }
